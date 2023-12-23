@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %} About {% endblock title %}
+{% block content %}
+{% load static %}
+        {% if is_author %}
+        <form method="POST"  enctype="multipart/form-data">
+          <div class="inputs">
+          <center> 
+          {% csrf_token %}
+          {% if delete %}
+          {% if user == profile_user.user %}
+          <p>Warning: Are you sure you want to delete?</p>
+          <button class="btn btn-primary">Delete</button>
+          <a href="{% url "profile_page" post.author.user.username %}" class="btn btn-primary">
+            NO
+          </a>
+          {% else %}
+          <a href="{% url "login" %}" class="btn btn-primary">unauthorized access</a>
+          {% endif %}
+          {% else %}
+          {{postform.title}}<br><br>
+          {{postform.image}}<br><br>
+          <div class="comment-box">
+          {{postform.post}}
+          </div>
+          
+          </div>
+          {% if user == user_profile.user %}
+          <button class="btn btn-primary">Submit</button>
+          {% else %}
+          <a href="{% url "login" %}" class="btn btn-primary">
+            unauthorized access denied
+          </a>
+          {% endif %}
+          {% endif %}
+        </form>
+        {% else %}
+        <p>you can't write blogs, Become author today and write your first blog!</p>
+        {% endif %}
+      </center>
+      
+{% endblock content %}
