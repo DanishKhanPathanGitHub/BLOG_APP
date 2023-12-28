@@ -29,6 +29,8 @@
           <button class="btn btn-primary">Submit</button>
           {% else %}
           <a href="{% url "login" %}" class="btn btn-primary">
+            {{user}}
+            {{user_profile.user}}
             unauthorized access denied
           </a>
           {% endif %}

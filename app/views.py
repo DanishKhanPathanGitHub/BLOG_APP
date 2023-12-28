@@ -213,7 +213,7 @@ def post_blog(request, slug):
 
 def update_blog(request, post_slug):
     post = Post.objects.get(slug=post_slug)
-    profile = post.author.user
+    profile = post.author
     is_author=True
     if request.POST:
         updateBlogForm = PostForm(request.POST, request.FILES ,instance=post)
@@ -228,7 +228,7 @@ def update_blog(request, post_slug):
 
 def delete_blog(request, post_slug):
     post = Post.objects.get(slug=post_slug)
-    profile = post.author.user
+    profile = post.author
     delete=True
     is_author=True
     if request.POST:
