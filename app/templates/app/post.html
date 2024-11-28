@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% block title %}Blog | {{post.title}}{% endblock title %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <div class="layout">
+      <!-- left layout -->
+      <div class="left">
+        <div class="page-top">
+          <div class="top flex">
+            <div class="page-name">
+              <a href="#" class="learn">
+                <span class="material-icons"> keyboard_return </span> Go
+                back
+              </a>
+              <h1>Blog</h1>
+            </div>
+          </div>
+        </div>
+
+        <center>
+          <div class="typo">
+            <h1 class="title blog-title">
+              {{post.title}}
+            </h1>
+            <div class="timeline">
+              <div class="track">
+                <i class="uil uil-clock"></i>
+                <p class="time">{{post.date}}</p>
+              </div>
+              <div class="track">
+                <i class="uil uil-users-alt"></i>
+                <p class="view-count">{{post.view_count}} views</p>
+              </div>
+              <div class="track">
+                {% if user.is_authenticated %}
+                <form action="{% url "bookmarks_page" post.slug %}" method="POST">
+                  {% csrf_token %}
+                  {% if bookmarked %}
+                  <button type="submit" class="btn btn-info cursor-button">
+                    <i class="fa-solid fa-bookmark"></i>
+                    <p class="bookmark">Remove Bookmark</p>
+                  </button>
+                  {% else %}
+                  <button type="submit" class="btn btn-info cursor-button">
+                    <i class="uil uil-bookmark-full"></i>
+                    <p class="bookmark">Bookmark</p>
+                  </button>
+                  {% endif %}
+                </form>
+                {% else %}
+                <a type="submit" class="track cursor-button" href="{% url "login" %}">
+                  <i class="uil uil-bookmark-full"></i>
+                  <p class="bookmark">Bookmark</p>
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </center>
+        <section class="mt">
+          <div class="container">
+            <!-- blog post -->
+            <div class="blog-post">
+              <div class="post-img blog-img">
+                <p><a href="{% url 'author_page' post.author.slug %}">
+                  author: {{post.author.user.username}}</a>
+                </p>
+                <p>Last updated : {{post.last_updated}}</p>
+                {% if post.image %}
+                <img src="{{post.image.url}}" alt="Image" />
+                {% endif %}
+              </div>
+              <div class="blog-post-content">
+                <p>
+                  {{post.content|safe}}
+                </p>
+                <div class="blog-tags">
+                  {% for tag in post.tags.all %}
+                  <a class="tag" href="{% url "tag_page" tag.name %}">{{tag}}</a>
+                  {% endfor %}
+                </div>
+                <div class="social-share">
+                  <div class="reactions">
+                    <div class="likes">
+                      {% if user.is_authenticated %}
+                      <form action="{% url "likes_page" post.slug %}" method="POST">
+                        {% csrf_token %}
+                        {% if liked %}
+                        <button class="cursor-button" type="submit">
+                          <i class="fa fa-heart"></i> <span>{{ likes }}</span>
+                        </button>
+                        {% else %}
+                        <button class="cursor-button" type="submit">
+                          <i class="uil uil-heart"></i> <span>{{ likes }}</span>
+                        </button>
+                        {% endif %}
+                      </form>
+                      {% else %}
+                        <a type="submit" class="cursor-button likes" href="{% url "login" %}">
+                          <i class="uil uil-heart"></i> <span>{{ likes }}</span>
+                        </a>
+                      {% endif %}
+                    </div>
+                    <div class="total-comments">
+                      <i class="uil uil-comment-alt"></i>
+                      <span>{{comment_count}}</span>
+                    </div>
+                  </div>
+                  <div class="share">
+                    <div class="social">
+                      <a href="#">
+                        <i class="fa-brands fa-facebook-f"></i>
+                      </a>
+                      <a href="#">
+                        <i class="fa-brands fa-instagram"></i>
+                      </a>
+                      <a href="#">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                      </a>
+                      <a href="#">
+                        <i class="fa-brands fa-twitter"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <!-- comments -->
+                {% for comment in comments %}
+                <div class="user-comment">
+                  <div class="author">
+                    <div class="profile-pic-small">
+                      {% if comment.author.profilePic %}
+                      <img src="{{comment.author.profilePic.url}}" alt="author" />
+                      {% else %}
+                      <img src="{% static 'images/dummy-user.png' %}" alt="author" />
+                      {% endif %}
+                    </div>
+                    <div class="details">
+                      <p>{{comment.author.user.username}}</p>
+                      <small>{{comment.date}}</small>
+                    </div>
+                  </div>
+                  <div class="comment-sec-main">
+                    <div class="comment-sec">
+                      <div class="comment">
+                        <p>
+                          {{comment.content}}
+                        </p>
+                      </div>
+
+                      <div class="reply">
+                        <button class="cursor-button" onclick="toggleDiv(this)">Reply</button>
+                      </div>
+                      <div class="comment-box" id="comment-reply-box">
+                        <h3>Reply to post</h3>
+                        <form method="POST">
+                          {% csrf_token %}
+                          {{form.content}}
+                          <div class="grid-3">
+                            <input type="hidden" name="post_id" value="{{post.id}}">
+                            <input type="hidden" name="parent" value="{{comment.id}}">
+                          </div>
+                          {% if user.is_authenticated %}
+                          <button class="btn btn-primary rounded">
+                            Post Reply
+                          </button>
+                          {% else %}
+                          <button class="btn btn-primary rounded" type="button">
+                            <a href="{% url 'login' %}"style="color: white;" >Post Reply</a>
+                          </button>
+                          {% endif %}
+                        </form>
+                      </div>  
+                    </div>
+                    {% for reply in comment.replies.all %}
+                    <div class="public-reply">
+                      <div class="author">
+                        <div class="profile-pic-small">
+                          {% if reply.author.profilePic %}
+                          <img src="{{reply.author.profilePic.url}}" alt="author" />
+                          {% else %}
+                          <img src="{% static 'images/dummy-user.png' %}" alt="author22" />
+                          {% endif %}
+                        </div>
+                        <div class="details">
+                          <p>{{reply.author.user.username}}</p>
+                          <small>{{reply.date}}</small>
+                        </div>
+                      </div>
+                      <div class="comment">
+                        <p>
+                          {{reply.content}}
+                        </p>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% endfor %}
+                <!-- user comment end -->
+              </div>
+            </div>
+            <div class="comment-box">
+              <h3>Leave a new comment to this post</h3>
+              <form method="POST">
+                {% csrf_token %}
+                {{form.content}}
+                <div class="grid-3">
+                </div>
+                {% if user.is_authenticated %}
+                <button class="btn btn-primary rounded">
+                  Post comment
+                </button>
+                {% else %}
+                <button class="btn btn-primary rounded" type="button">
+                  <a href="{% url 'login' %}" style="color: white;">Post comment</a>
+                </button>
+                {% endif %}
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!-- left layout end -->
+      <div class="right">
+        <div class="block">
+          <h2 class="title2">Most recent from author</h2>
+          {% for post in recent_from_authors %}
+          <div class="recent-post">
+            <div class="rounded-img">
+              {% if post.image %}
+              <img src="{{post.image.url}}" alt="" />
+              {% endif %}
+            </div>
+            <div class="recent-content">
+              <h3>
+                {{post.title}}
+              </h3>
+              <a class="learn" href="{% url 'post_page' post.slug %}"
+                >Learn more
+                <span class="material-icons"> trending_flat </span></a
+              >
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="block r-blog">
+          <h2 class="title2">Related Blogs</h2>
+          {% for post in related_posts %}
+          <!-- card -->
+          <div class="recent-post">
+            <div class="rounded-img">
+              {% if post.image %}
+              <img src="{{post.image.url}}" alt="" />
+              {% endif %}
+            </div>
+            <div class="recent-content">
+              <h3>
+                {{post.title}}
+              </h3>
+              <a class="learn" href="{% url 'post_page' post.slug %}"
+                >Learn more
+                <span class="material-icons"> trending_flat </span></a
+              >
+            </div>
+          </div>
+          <!-- card end-->
+          {% endfor %}
+
+        </div>
+        <div class="block">
+          <h2 class="title2">Top Author</h2>
+          {% for author in top_authors %}
+          <div class="recent-post">
+            <div class="rounded-img">
+              {% if author.profilePic %}
+              <img src="{{author.profilePic.url}}" alt="" />
+              {% else %}
+              <img src="{% static 'images/dummy-user.png' %}" alt="Default Profile" class="profile-pic">
+              {% endif %}
+            </div>
+            <div class="recent-content">
+              <h3>
+                {{author.user.username}}
+              </h3>
+              <a class="learn" href="{% url 'author_page' author.slug %}"
+                >Learn more
+                <span class="material-icons"> trending_flat </span></a
+              >
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="block">
+          <h2 class="title2">Top Tags</h2>
+          <div class="blog-tags">
+            {% for tag in top_tags %}
+            <a class="tag" href="{% url 'tag_page' tag.name %}">{{tag.name}}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

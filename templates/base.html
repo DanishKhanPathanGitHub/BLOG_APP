@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'app/style.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v2.1.6/css/unicons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+      integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
+      rel="stylesheet"
+    />
+
+    <title>{% block title %}Blog{% endblock title %}</title>
+  </head>
+  <body>
+    <header>
+      <div class="container container-fluid">
+        <a class="logo" href="{% url "home" %}">
+          <i class="fa-brands fa-blogger"></i>
+        </a>
+        <div class="links">
+          <a href="{% url "home" %}">Home</a>
+          <a href="{% url "about_page" %}">About</a>
+          <a href="{% url "search_page" %}">All posts</a>
+          {% if user.is_authenticated %}
+          <a href="{% url "profile_page" user.profile.slug %}">Profile</a>
+          <a href="{% url "post_blog" user.profile.slug %}">Write</a>
+          {% else %}
+          <a href="{% url "login" %}">Profile</a>
+          <a href="{% url "login" %}">Write</a>
+          {% endif %}
+        </div>
+        <div class="action-btn">
+          {% if user.is_authenticated %}
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-scoundary">Logout</button>
+         </form>
+          {% else %}
+          <a href="{% url 'login' %}"
+            ><button class="btn btn-scoundary">Login</button></a
+          >
+          <a href="{% url 'registerUser' %}">
+            <button class="btn btn-primary">Sign Up</button></a
+          >
+          <i class="uil uil-align-center-alt menu" onclick="menu()"></i>
+          {% endif %}
+        </div>
+      </div>
+    </header>
+    <main>
+    {% block content %}
+    {% endblock content %}
+    </main>
+    <footer>
+      <div class="container">
+        <h1>Quick Links</h1>
+        <div class="share">
+          <div class="social">
+            <a href="#">
+              <i class="fa-brands fa-facebook-f"></i>
+            </a>
+            <a href="#">
+              <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="#">
+              <i class="fa-brands fa-linkedin-in"></i>
+            </a>
+            <a href="#">
+              <i class="fa-brands fa-twitter"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script src="{% static "app/url.js" %}" id="url"></script>
+  </body>
+</html>

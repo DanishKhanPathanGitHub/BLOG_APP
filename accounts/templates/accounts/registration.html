@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Blog | Register{% endblock title %}
+{% block content %}
+{% load static %}
+<div class="container">
+    <div class="page-name">
+      <h1>Sign Up</h1>
+    </div>
+
+    <form method="POST" action="{% url "registerUser" %}" id="registrationForm" class="form register">
+    {% csrf_token %}
+      <center>
+        <div class="logo f-logo">
+          <i class="fa-brands fa-blogger"></i>
+        </div>
+        {% if user_form.non_field_errors %}
+            {% for error in user_form.non_field_errors %}
+                <p>{{error}}</p>
+            {% endfor %}
+        {% endif %}
+        <div class="inputs">
+          <div>
+            <div class="search-bar s-active input">
+              {{user_form.username}}
+              <div class="animated-search">
+                <i class="uil uil-user"></i>
+              </div>
+            </div>
+            {% if user_form.username.errors %}
+            <div class="field-error">
+              <p>{{user_form.username.errors}}</p>
+            </div>
+            {% endif %}
+          </div>
+
+          <div>
+            <div class="search-bar s-active input">
+              {{user_form.email}}
+              <div class="animated-search">
+                <i class="uil uil-envelope-alt"></i>
+              </div>
+            </div>
+
+            {% if user_form.email.errors %}
+            <div class="field-error">
+              <p>{{user_form.email.errors}}</p>
+            </div>
+            {% endif %}
+          </div>
+
+          <div>
+            <div class="search-bar s-active input">
+              {{user_form.password}}
+              <div class="animated-search">
+                <i class="uil uil-key-skeleton"></i>
+              </div>
+            </div>
+            {% if user_form.password.errors %}
+            <div class="field-error">
+              <p>{{user_form.password.errors}}</p>
+            </div>
+            {% endif %}
+          </div>
+          <div>
+            <div class="search-bar s-active input">
+              {{user_form.confirm_password}}
+              <div class="animated-search">
+                <i class="uil uil-key-skeleton"></i>
+              </div>
+            </div>
+            {% if user_form.confirm_password.errors %}
+            <div class="field-error">
+              <p>{{user_form.confirm_password.errors}}</p>
+            </div>
+            {% endif %}
+          </div>
+          <button class="btn btn-primary rounded submit" name="submit" id="submitBtn">
+            SIGN UP <span class="material-icons"> arrow_right_alt </span>
+          </button>
+          <div id="loadingIndicator" style="display: none;">
+              <p>Please wait...</p>
+              <div class="spinner"></div> <!-- You can add CSS to style your spinner -->
+          </div>
+          
+          <center>
+            <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+            
+          </center>
+        </div>
+      </center>
+    </form>
+  </div>
+<script>
+    document.getElementById('registrationForm').addEventListener('submit', function(event) {
+        // Show loading indicator
+        document.getElementById('loadingIndicator').style.display = 'block';
+        // Hide submit button (optional)
+        document.getElementById('submitBtn').style.display = 'none';
+        
+        // Optionally, you can disable the submit button to prevent multiple submissions
+        document.getElementById('submitBtn').disabled = true;
+     });
+</script>
+  {% endblock %}

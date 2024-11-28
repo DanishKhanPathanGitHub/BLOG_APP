@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Blog | Login{% endblock title %}
+{% block content %}
+{% load static %}
+<div class="container">
+   <div class="page-name">
+     <h1>Sign Up</h1>
+   </div>
+<form class="form login" action="{% url "login" %}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <p><span style="font-size:18px;">Login!</span></p>
+  <div class="inputs">
+  <p>your email <span>*</span></p>
+  <div class="search-bar s-active input">
+  <input type="email" name="email" placeholder="enter your email" maxlength="50" required class="box">
+  <div class="animated-search">
+   <i class="uil uil-envelope-alt"></i>
+ </div>
+  </div>
+  <p>your password <span>*</span></p>
+  <div class="search-bar s-active input">
+  <input type="password" name="password" placeholder="enter your password" maxlength="20" required class="box">
+  <div class="animated-search">
+   <i class="uil uil-key-skeleton"></i>
+ </div>
+  </div>
+  {% for message in messages %}
+     <div class="alert alert-warning alert-dismissible fade show" role="alert">
+     {% if message.tags == success %}
+     {% else %}
+        <span style="color:red; font-size:14px;">{{ message }}</span>
+     {% endif %}
+  {% endfor %}
+  <p class="link">don't have an account? <a href="{% url "registerUser" %}">register now</a></p>
+  <p class="link">Forgot password?<a href="{% url "forgot_password" %}">Reset</a></p>
+  <button class="btn btn-primary rounded">
+    Login <span class="material-icons"> arrow_right_alt </span>
+ </button>
+     </div>
+</form>
+</div>
+{% endblock content %}

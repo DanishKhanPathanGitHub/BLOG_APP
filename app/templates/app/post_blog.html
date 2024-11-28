@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %} Post Blog {% endblock title %}
+{% block content %}
+{% load static %}
+
+<center>
+  <form 
+    method="POST" 
+    enctype="multipart/form-data" 
+    class="elegant-post-form-container form"
+    action="{% if delete %}{% url 'delete_blog' post.slug %}{% elif post %}{% url 'update_blog' post.slug %}{% else %}{% url 'post_blog' user_profile.slug %}{% endif %}"
+  >
+    {% csrf_token %}
+    
+    {% if delete %}
+      <p class="elegant-delete-warning">⚠️ Are you sure you want to delete this post?</p>
+      <button type="submit" class="elegant-btn elegant-btn-danger">Delete</button>
+      <a href="{% url 'profile_page' post.author.slug %}" class="elegant-btn elegant-btn-cancel">NO</a>
+    {% else %}
+      <div class="elegant-form-group">
+        <label for="post-title" class="elegant-form-label">Post Title:</label>
+        <div class="s-active input animated-search">
+        {{ postform.title }}
+        </div>
+      </div>
+      <div class="elegant-form-group">
+        <label for="post-image" class="elegant-form-label">Upload Image:</label>
+        <div class="form-fields">
+        {{ postform.image }}
+        </div>
+      </div>
+      <div class="elegant-comment-box">
+        <label for="post-content-editor" class="elegant-form-label">Content:</label>
+        {{ postform.content|safe }}
+      </div>
+      <div class="elegant-form-group">
+        <label for="tags-input" class="elegant-form-label">Tags:</label>
+        <div id="tag-container" class="tag-container"></div>
+        <input type="text" id="tag-input" class="tag-input" placeholder="Type a tag and press Enter" />
+        <div id="suggestion-box" class="suggestion-box"></div>
+      </div>
+      <button type="submit" class="elegant-btn elegant-btn-submit">Submit</button>
+    {% endif %}
+  </form>
+</center>
+
+<script src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script>
+  tinymce.init({
+    selector: 'textarea',
+    plugins: 'advlist autolink link image lists charmap preview',
+    toolbar: 'undo redo | h1 h3 h6 | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist |',
+    height: 700,
+    menubar: false,
+    branding: false,
+  });
+  
+  const tagInput = document.getElementById('tag-input');
+  const tagContainer = document.getElementById('tag-container');
+  const suggestionBox = document.getElementById('suggestion-box');
+  const form = document.querySelector('.elegant-post-form-container.form');
+  const tags = new Set();
+  
+  function addTag(tag) {
+    if (tags.has(tag)) return;
+    tags.add(tag);
+  
+    const tagElement = document.createElement('div');
+    tagElement.className = 'tag';
+    tagElement.innerText = tag;
+  
+    const removeBtn = document.createElement('span');
+    removeBtn.innerHTML = '&times;';
+    removeBtn.className = 'remove-btn';
+    removeBtn.onclick = () => {
+      tags.delete(tag);
+      tagElement.remove();
+    };
+  
+    tagElement.appendChild(removeBtn);
+    tagContainer.appendChild(tagElement);
+  }
+  
+  async function fetchSuggestions(query) {
+    try {
+      const response = await fetch(`/tags/suggestions?query=${query}`);
+      if (!response.ok) {
+        console.error('Error fetching suggestions:', response.statusText);
+        return;
+      }
+      const data = await response.json();
+      suggestionBox.innerHTML = '';
+      data.tags.forEach((tag) => {
+        const suggestion = document.createElement('div');
+        suggestion.className = 'suggestion';
+        suggestion.innerText = tag;
+        suggestion.onclick = () => {
+          addTag(tag);
+          tagInput.value = '';
+          suggestionBox.innerHTML = '';
+        };
+        suggestionBox.appendChild(suggestion);
+      });
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  }
+  
+  tagInput.addEventListener('input', (e) => {
+    const query = e.target.value.trim();
+    if (query) {
+      fetchSuggestions(query);
+    } else {
+      suggestionBox.innerHTML = '';
+    }
+  });
+  
+  tagInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const tag = tagInput.value.trim();
+      if (tag) addTag(tag);
+      tagInput.value = '';
+      suggestionBox.innerHTML = '';
+    }
+  });
+  
+  form.addEventListener('submit', (e) => {
+    console.log('Form submission initiated...');
+    console.log('Tags:', tags);
+  
+    // Add hidden inputs for tags
+    tags.forEach((tag) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'tags';
+      input.value = tag;
+      form.appendChild(input);
+    });
+  
+    console.log('Form ready for submission:', form);
+  });
+  
+</script>
+
+{% endblock content %}

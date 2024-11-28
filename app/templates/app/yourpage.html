@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% block title %}Blog | You{% endblock title %}
+{% block content %}
+{% load static %}
+
+      <div class="container">
+        <div class="page-top">
+          <div class="top flex">
+            <div class="page-name">
+              <a href="#" class="learn">
+                <span class="material-icons"> keyboard_return </span> Go back
+              </a>
+              <h1>Your profile</h1>
+              <br>
+              <style>
+              .plain-button {
+                border: none;
+                background: none;
+                padding: 10px 20px; 
+                margin-right: 10px;
+                /* This will make the button similar to h3 */
+                /* Additional styles can be added as needed */
+            }</style>
+            <form method="POST" enctype="multipart/form-data" class="profile-form">
+              {% if profile.profilePic %}
+                <img src="{{profile.profilePic.url}}" alt="Profile Picture" class="profile-pic">
+              {% else %}
+                <img src="{% static 'images/dummy-user.png' %}" alt="Default Profile" class="profile-pic">
+              {% endif %}
+              <div class="user-info">
+                <p class="username">Username: <span class="profile-username">{{profile.user.username}}</span></p>
+                <p class="username">Bio: <span class="profile-bio">{{profile.bio}}</span></p>
+              </div>
+              {% csrf_token %}
+              <div class="form-fields">
+                {{profile_form.as_p}}
+              </div>
+              <button type="submit" class="btn-submit">Submit</button>
+            </form>
+            
+              <form action="{% url 'profile_page' profile.slug %}" id="filter-post-btns" method="GET">
+                {% if "display_posts" %}{% endif %}
+                <button type="submit" name="display_posts" value="bookmarks" class="plain-button"><h3>Bookmarks</h3></button>
+                <button type="submit" name="display_posts" value="likes" class="plain-button"><h3>Likes</h3></button>
+                <button type="submit" name="display_posts" value="your_posts" class="plain-button"><h3>Your posts</h3></button>
+              </form>
+            </div>                   
+          </div>
+        </div>
+      </div>
+    </main>
+    <section class="sp">
+      <div class="container">
+        <div class="grid">
+          <!-- card -->
+          {% if display_posts == 'bookmarks' %}
+          {% if bookmarked_posts %}
+          {% for post in bookmarked_posts %}
+          <a href="{% url "post_page" post.slug %}">
+            <div class="card">
+              <div class="post-img">
+                {% if post.image %}
+                <img src="{{post.image.url}}" alt="" />
+                {% endif %}
+                <div class="tag">
+                  {{post.tags.all.0.name}}
+                </div>
+              </div>
+              <div class="card-content">
+                <h3>
+                  {{post.title}}
+                </h3>
+                <div class="author">
+                  <div class="profile-pic-small">
+                    {% if profile.profilePic %}
+                    <img src="{{profile.profilePic.url}}" alt="" />
+                    {% else %}
+                    <img src="{% static "images/dummy-user.png" %}"/>
+                    {% endif %}
+                  </div>
+                  <div class="details">
+                    <p>{{post.author.user.username}}</p>
+                    <small>{{post.date}}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+          <!-- card end-->
+          {% endfor %}
+          {% else %}
+          <p>You have no bookmarked  posts</p>
+          {% endif %}
+         
+          {% elif display_posts == 'likes' %}
+          {% if liked_posts %}
+          {% for post in liked_posts %}
+          <a href="{% url "post_page" post.slug %}">
+            <div class="card">
+              <div class="post-img">
+                {% if post.image %}
+                <img src="{{post.image.url}}" alt="" />
+                {% endif %}
+                <div class="tag">
+                  {{post.tags.all.0.name}}
+                </div>
+              </div>
+              <div class="card-content">
+                <h3>
+                  {{post.title}}
+                </h3>
+                <div class="author">
+                  <div class="profile-pic-small">
+                    {% if profile.profilePic %}
+                    <img src="{{profile.profilePic.url}}" alt="" />
+                    {% else %}
+                    <img src="{% static "images/dummy-user.png" %}"/>
+                    {% endif %}
+                  </div>
+                  <div class="details">
+                    <p>{{post.author.user.username}}</p>
+                    <small>{{post.date}}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+          {% endfor %}
+          {% else %}
+          <p>You have no liked  posts</p>
+          {% endif %}
+
+          {% elif display_posts == 'author_posts' %}          
+          {% if author_posts %}
+          {% for post in author_posts %}
+          <a href="{% url "post_page" post.slug %}">
+            <div class="card">
+              <div class="post-img">
+                {% if post.image %}
+                <img src="{{post.image.url}}" alt="" />
+                {% endif %}
+                <div class="tag">
+                  {{post.tags.all.0.name}}
+                </div>
+              </div>
+              <div class="card-content">
+                <h3>
+                  {{post.title}}
+                </h3>
+                <div class="author">
+                  <div class="profile-pic-small">
+                    {% if profile.profilePic %}
+                    <img src="{{profile.profilePic.url}}" alt="" />
+                    {% else %}
+                    <img src="{% static "images/dummy-user.png" %}"/>
+                    {% endif %}
+                  </div>
+                  <div class="details">
+                    <p>{{post.author.user.username}}</p>
+                    <small>{{post.date}}</small>
+                  </div>
+                  
+                </div>
+                <a class="btn btn-primary" href="{% url "update_blog" post.slug %}">
+                  update
+                </a><br><br>
+                <a class="btn btn-secondary" href="{% url "delete_blog" post.slug %}">
+                  delete
+                </a>
+              </div>
+            </div>
+          </a>
+          
+          {% endfor %}
+          {% else %}
+          
+          <a href="{% url "post_blog" user.profile.slug %}">You haven't write blog yet..write your first blog</a>
+          
+          {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </section>
+{% endblock content %}
